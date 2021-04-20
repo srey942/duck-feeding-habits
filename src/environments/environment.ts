@@ -5,8 +5,8 @@
 export const environment = {
   production: false,
   contentful: {
-    spaceId: 'fy2mi4o4lzlm',
-    token: '8LqPCeHU7t1j9RXw7vhzD49r3mLoFrlAgySeEkz-9SU'
+    spaceId: 'xxxxxx', // Space ID to be retrieved from Conentful API
+    token: 'xxx' // token to be retrieved from Conentful API
   }
 };
 
