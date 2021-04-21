@@ -1,14 +1,7 @@
 import { Component, OnInit } from "@angular/core";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { Entry } from "contentful";
-import { FormFieldsService } from "src/services/form-fields.service";
-
-import {
-  FormControl,
-  FormGroup,
-  ValidatorFn,
-  Validators,
-} from "@angular/forms";
+import { NgxUiLoaderService } from "ngx-ui-loader";
 import { FormField } from "src/common/form-field";
 import { DbService } from "src/services/db.service";
 
@@ -19,16 +12,21 @@ import { DbService } from "src/services/db.service";
 })
 export class DuckFeedHabitComponent implements OnInit {
   formFields: FormField[] = [];
-  form = new FormGroup({});
+  form;
 
   constructor(
     private route: Router,
-    private formservice: FormFieldsService,
-    private dbService: DbService
+    private dbService: DbService,
+    private ngxLoader: NgxUiLoaderService
   ) {}
 
   ngOnInit() {
-    this.formservice.getFormFields().then((formFields) => {
+    this.formCreate();
+  }
+  formCreate() {
+    this.ngxLoader.start();
+    this.form = new FormGroup({});
+    this.dbService.getFormFields().subscribe((formFields) => {
       for (let a of formFields.items) {
         this.formFields.push(a.fields);
         if (a.fields.types && a.fields.types.length > 0) {
@@ -39,9 +37,11 @@ export class DuckFeedHabitComponent implements OnInit {
           new FormControl("", this.getValidators(a.fields))
         );
       }
+      this.ngxLoader.stop();
     });
   }
   onSubmit() {
+    this.ngxLoader.start();
     Object.keys(this.form.controls).forEach((key) => {
       this.form.controls[key].markAsDirty();
     });
@@ -62,17 +62,11 @@ export class DuckFeedHabitComponent implements OnInit {
       day.setMinutes(TimeofFeed[1]);
       body["Time of Feed"] = day.toUTCString();
 
-      this.form.reset();
-      Object.keys(this.form.controls).forEach((key) => {
-        this.form.controls[key].markAsPristine();
-        this.form.controls[key].markAsUntouched();
-      });
-
       this.dbService.addFoodDetails(body).subscribe((data) => {
+        this.ngxLoader.stop();
         if (data.success) {
-          console.log("ts response ", data);
+          this.route.navigate(["/viewAllSubmission"]);
         } else {
-          console.log("ts response ", data);
         }
       });
     }
@@ -87,8 +81,7 @@ export class DuckFeedHabitComponent implements OnInit {
             validators.push(Validators.required);
             break;
           case "string":
-            //validators.push(Validators.pattern("[A-Za-z]+[\s][A-Za-z]+"))
-            validators.push(Validators.pattern("[A-Za-z]+"));
+            validators.push(Validators.pattern("[A-Za-z\\s]+"));
             break;
           case "number":
             validators.push(Validators.pattern("[0-9]+"));

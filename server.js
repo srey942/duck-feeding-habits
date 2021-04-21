@@ -1,13 +1,16 @@
+//Install express server
 const express = require('express');
-var path = require('path');
+const path = require('path');
 
-//Starting Express app
 const app = express();
 
-//Set the base path to the angular-test dist folder
-//app.use(express.static(path.join(__dirname, 'dist/')));
+// Serve only the static files form the dist directory
+app.use(express.static('./dist/duck-feeding-habits'));
 
-//Any routes will be redirected to the angular app
-app.get('*', function(req, res) {
-    res.sendFile(path.join(__dirname, 'dist/angular-test/index.html'));
+app.get('/*', function(req, res) {
+
+  res.sendFile(path.join(__dirname, '/dist/duck-feeding-habits/index.html'));
 });
+
+// Start the app by listening on the default Heroku port
+app.listen(process.env.PORT || 8080);

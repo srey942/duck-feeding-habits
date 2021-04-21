@@ -7,10 +7,18 @@ import { catchError } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class DbService {
-  baseURL: string = 'http://localhost:3000';
+  baseURL: string = 'https://duck-feeding-habits-backend.herokuapp.com';
   headers = new HttpHeaders().set('Content-Type', 'application/json');
 
   constructor(private http: HttpClient) { }
+
+  getFormFields(): Observable<any> {
+    let apiURL = this.baseURL + '/getFormFields'
+    return this.http.get(apiURL)
+      .pipe(
+        catchError(this.error)
+      )
+  }
 
   addFoodDetails(data): Observable<any> {
     let apiURL = this.baseURL + '/addFoodDetails'
